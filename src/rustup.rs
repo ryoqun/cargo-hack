@@ -63,7 +63,7 @@ pub(crate) fn version_range(
     let end = match split.next() {
         Some("") | None => {
             install_toolchain("stable", &[], false)?;
-            cargo::minor_version(cmd!("cargo", "+stable"))?
+            cargo::minor_version(cmd!("rustup", "run", "stable", "cargo"))?
         }
         Some(end) => {
             let end = end.parse()?;
@@ -77,10 +77,8 @@ pub(crate) fn version_range(
         bail!("--version-step cannot be zero");
     }
 
-    let versions: Vec<_> = (start.minor..=end)
-        .step_by(step as _)
-        .map(|minor| (minor, format!("+1.{minor}")))
-        .collect();
+    let versions: Vec<_> =
+        (start.minor..=end).step_by(step as _).map(|minor| (minor, format!("1.{minor}"))).collect();
     if versions.is_empty() {
         bail!("specified version range `{range}` is empty");
     }
@@ -95,7 +93,7 @@ pub(crate) fn install_toolchain(
     toolchain = toolchain.strip_prefix('+').unwrap_or(toolchain);
 
     if target.is_empty()
-        && cmd!("cargo", format!("+{toolchain}"), "--version").run_with_output().is_ok()
+        && cmd!("rustup", "run", toolchain, "cargo", "--version").run_with_output().is_ok()
     {
         // Do not run `rustup toolchain install` if the toolchain already has installed.
         return Ok(());

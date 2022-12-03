@@ -1,5 +1,5 @@
 use std::{
-    env::{self, consts::EXE_SUFFIX},
+    env,
     ffi::OsStr,
     path::{Path, PathBuf},
     process::{Command, ExitStatus},
@@ -26,8 +26,8 @@ pub fn cargo_bin_exe() -> Command {
 }
 
 fn test_toolchain() -> String {
-    if let Some(toolchain) = test_version() {
-        format!("+1.{toolchain} ")
+    if let Some(minor) = test_version() {
+        format!("rustup run 1.{minor} ")
     } else {
         String::new()
     }
@@ -139,7 +139,7 @@ struct AssertOutputInner {
 }
 
 fn replace_command(lines: &str) -> String {
-    if lines.contains("cargo +") || lines.contains(&format!("cargo{EXE_SUFFIX} +")) {
+    if lines.contains("rustup run") {
         lines.to_owned()
     } else {
         lines.replace("cargo ", &format!("cargo {}", test_toolchain()))

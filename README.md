@@ -289,9 +289,9 @@ Perform commands on a specified (inclusive) range of Rust versions.
 
 ```console
 $ cargo hack check --version-range 1.46..1.47
-info: running `cargo +1.46 check` on cargo-hack (1/2)
+info: running `rustup run 1.46 cargo check` on cargo-hack (1/2)
 ...
-info: running `cargo +1.47 check` on cargo-hack (2/2)
+info: running `rustup run 1.47 cargo check` on cargo-hack (2/2)
 ...
 ```
 
