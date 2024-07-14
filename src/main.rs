@@ -673,6 +673,7 @@ fn exec_cargo_inner(
         eprintln!();
     }
 
+    let new_count = progress.count + 1;
     let mut skip = false;
     if let Some(partition) = &cx.partition {
         if progress.count % partition.count != partition.index - 1 {
@@ -682,12 +683,11 @@ fn exec_cargo_inner(
             } else {
                 write!(msg, "skipping {line} on {}", cx.packages(id).name).unwrap();
             }
-            write!(msg, " ({}/{})", progress.count, progress.total).unwrap();
+            write!(msg, " ({}/{})", new_count, progress.total).unwrap();
             let _guard = cx.log_group.print(&msg);
             skip = true;
         }
     }
-    progress.count += 1;
     if skip {
         return Ok(());
     }
@@ -708,9 +708,10 @@ fn exec_cargo_inner(
     } else {
         write!(msg, "running {line} on {}", cx.packages(id).name).unwrap();
     }
-    write!(msg, " ({}/{})", progress.count, progress.total).unwrap();
+    write!(msg, " ({}/{})", new_count, progress.total).unwrap();
     let _guard = cx.log_group.print(&msg);
 
+    progress.count = new_count;
     line.run()
 }
 
