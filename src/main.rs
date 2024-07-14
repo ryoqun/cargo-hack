@@ -688,6 +688,7 @@ fn exec_cargo_inner(
             skip = true;
         }
     }
+    progress.count = new_count;
     if skip {
         return Ok(());
     }
@@ -711,7 +712,6 @@ fn exec_cargo_inner(
     write!(msg, " ({}/{})", new_count, progress.total).unwrap();
     let _guard = cx.log_group.print(&msg);
 
-    progress.count = new_count;
     line.run()
 }
 
