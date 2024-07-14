@@ -28,7 +28,7 @@ impl FromStr for Partition {
 
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match &s.split("/").map(str::parse::<usize>).collect::<Vec<_>>()[..] {
-            [Ok(a), Ok(b)] => Ok(Self {count: 0, index: 0}),
+            [Ok(index), Ok(count)] => Ok(Self {count: 0, index: 0}),
             other => bail!(
                 "couldn't parse partition ({s}): {other:?}"
             ),
