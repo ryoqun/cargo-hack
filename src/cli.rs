@@ -203,6 +203,7 @@ impl Args {
         let mut verbose = 0;
         let mut no_default_features = false;
         let mut all_features = false;
+        let mut partition = None;
 
         // Cargo seems to be deduplicating targets internally using BTreeSet or BTreeMap.
         // For example, the following commands all run the test once each in the order aarch64 -> x86_64.
@@ -317,10 +318,7 @@ impl Args {
                     }
                 }
                 Long("partition") => {
-                    let p: Partition = parser.value()?.parse()?;
-
-                    //let depth = depth.as_deref().map(str::parse::<usize>).transpose()?;
-
+                    partition = Some(parser.value()?.parse()?);
                 }
 
                 Long("workspace" | "all") => parse_flag!(workspace),
@@ -670,6 +668,8 @@ impl Args {
 
             no_default_features,
             target: target.into_iter().collect(),
+
+            partition,
         })
     }
 }
