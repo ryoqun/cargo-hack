@@ -672,7 +672,7 @@ fn exec_cargo_inner(
     if progress.count != 0 && !cx.print_command_list && cx.log_group == LogGroup::None {
         eprintln!();
     }
-    if let Some(partition) = cx.partition {
+    if let Some(partition) = &cx.partition {
         if progress.count % partition.count != partition.index {
             let mut msg = String::new();
             if term::verbose() {
