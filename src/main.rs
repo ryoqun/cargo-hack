@@ -672,16 +672,19 @@ fn exec_cargo_inner(
     if progress.count != 0 && !cx.print_command_list && cx.log_group == LogGroup::None {
         eprintln!();
     }
-    if progress.count % progress.partition_count != progress.partition_index {
-        let mut msg = String::new();
-        if term::verbose() {
-            write!(msg, "skipping {line}").unwrap();
-        } else {
-            write!(msg, "skipping {line} on {}", cx.packages(id).name).unwrap();
+    if let Some(partition) = cx.partition {
+        if progress.count % partition.count != partition.index {
+            let mut msg = String::new();
+            if term::verbose() {
+                write!(msg, "skipping {line}").unwrap();
+            } else {
+                write!(msg, "skipping {line} on {}", cx.packages(id).name).unwrap();
+            }
+            write!(msg, " ({}/{}; {:?})", progress.count, progress.total, cx.partition).unwrap();
+            let _guard = cx.log_group.print(&msg);
+            progress.count += 1;
+            return Ok(());
         }
-        write!(msg, " ({}/{}; {:?})", progress.count, progress.total, cx.partition).unwrap();
-        let _guard = cx.log_group.print(&msg);
-        return Ok(());
     }
     progress.count += 1;
 
