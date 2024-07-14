@@ -673,7 +673,7 @@ fn exec_cargo_inner(
         eprintln!();
     }
     if let Some(partition) = &cx.partition {
-        if progress.count % partition.count != partition.index {
+        if progress.count % partition.count != partition.index - 1 {
             let mut msg = String::new();
             if term::verbose() {
                 write!(msg, "skipping {line}").unwrap();
