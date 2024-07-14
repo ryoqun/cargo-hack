@@ -27,7 +27,7 @@ impl FromStr for Partition {
     type Err = Error;
 
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        match &s.split("/").map(str::parse::<usize>).collect::<Vec<_>>()[..] {
+        match &s.split("/").map(str::parse::<usize>)[..] {
             [Ok(a), Ok(b)] => Ok(Self {count: 0, index: 0}),
             other => bail!(
                 "argument for --log-group must be none or github-actions, but found"
