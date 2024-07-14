@@ -17,8 +17,8 @@ use crate::{term, version::VersionRange, Feature, LogGroup, Rustup};
 
 #[derive(Debug)]
 pub(crate) struct Partition {
-    index: usize,
-    count: usize,
+    pub(crate) index: usize,
+    pub(crate) count: usize,
 }
 
 use anyhow::Error;
@@ -30,7 +30,7 @@ impl FromStr for Partition {
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match &s.split("/").map(str::parse::<usize>).collect::<Vec<_>>()[..] {
             &[Ok(index), Ok(count)] if index <= count && index > 0 && count > 0 => Ok(Self {index, count}),
-            other => bail!(
+            _other => bail!(
                 "bad or out-of-range partition"
             ),
         }
