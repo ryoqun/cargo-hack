@@ -688,7 +688,7 @@ fn exec_cargo_inner(
         } else {
             write!(msg, "skipping {line} on {}", cx.packages(id).name).unwrap();
         }
-        write!(msg, " ({}/{}; {} {})", progress.count, progress.total, progress.partition_index, progress.partition_count).unwrap();
+        write!(msg, " ({}/{}; {:?})", progress.count, progress.total, cx.partition).unwrap();
         let _guard = cx.log_group.print(&msg);
         return Ok(());
     }
