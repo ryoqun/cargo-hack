@@ -15,6 +15,7 @@ use lexopt::{
 
 use crate::{term, version::VersionRange, Feature, LogGroup, Rustup};
 
+#[derive(Debug)]
 pub(crate) struct Partition {
     count: usize,
     index: usize,
