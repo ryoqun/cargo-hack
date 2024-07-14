@@ -31,7 +31,7 @@ impl FromStr for Partition {
         match &s.split("/").map(str::parse::<usize>).collect::<Vec<_>>()[..] {
             &[Ok(index), Ok(count)] if index <= count && index > 0 && count > 0 => Ok(Self {index, count}),
             other => bail!(
-                "bad or out-of-range partition: {s}"
+                "bad or out-of-range partition"
             ),
         }
     }
