@@ -7,7 +7,7 @@ use std::{
     fmt, mem,
 };
 
-use anyhow::{bail, format_err, Result};
+use anyhow::{bail, format_err, Error, Result};
 use lexopt::{
     Arg::{Long, Short, Value},
     ValueExt,
@@ -15,13 +15,11 @@ use lexopt::{
 
 use crate::{term, version::VersionRange, Feature, LogGroup, Rustup};
 
-#[derive(Debug)]
 pub(crate) struct Partition {
     pub(crate) index: usize,
     pub(crate) count: usize,
 }
 
-use anyhow::Error;
 use std::str::FromStr;
 
 impl FromStr for Partition {

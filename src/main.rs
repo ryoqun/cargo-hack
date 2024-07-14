@@ -692,7 +692,6 @@ fn exec_cargo_inner(
         eprintln!();
     }
 
-
     if cx.clean_per_run {
         cargo_clean(cx, Some(id))?;
     }
