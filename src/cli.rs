@@ -28,9 +28,9 @@ impl FromStr for Partition {
     type Err = Error;
 
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        match s.split("/").map(str::parse::<usize>).collect::<Vec<_>>()[..] {
-            [Ok(index), Ok(count)] if index <= count && index > 0 && count > 0 => Ok(Self {index, count}),
-            other => bail!(
+        match &s.split("/").map(str::parse::<usize>).collect::<Vec<_>>()[..] {
+            &[Ok(index), Ok(count)] if index <= count && index > 0 && count > 0 => Ok(Self {index, count}),
+            &other => bail!(
                 "bad or out-of-range partition"
             ),
         }
