@@ -669,6 +669,10 @@ fn exec_cargo_inner(
     line: &ProcessBuilder<'_>,
     progress: &mut Progress,
 ) -> Result<()> {
+    if progress.count != 0 && !cx.print_command_list && cx.log_group == LogGroup::None {
+        eprintln!();
+    }
+
     let mut skip = false;
     if let Some(partition) = &cx.partition {
         if progress.count % partition.count != partition.index - 1 {
@@ -680,16 +684,12 @@ fn exec_cargo_inner(
             }
             write!(msg, " ({}/{})", progress.count, progress.total).unwrap();
             let _guard = cx.log_group.print(&msg);
-            progress.count += 1;
             skip = true;
         }
     }
     progress.count += 1;
     if skip {
         return Ok(());
-    }
-    if progress.count != 0 && !cx.print_command_list && cx.log_group == LogGroup::None {
-        eprintln!();
     }
 
     if cx.clean_per_run {
