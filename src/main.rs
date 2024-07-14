@@ -58,14 +58,7 @@ fn try_main() -> Result<()> {
         }
 
         let packages = determine_package_list(cx)?;
-        let mut progress = if std::env::var("PARTITION").is_ok() {
-            let mut p = Progress::default();
-            p.partition_count = 3;
-            p.partition_index = 2;
-            p
-        } else {
-            Progress::default()
-        };
+        let mut progress = Progress::default();
         let mut keep_going = KeepGoing::default();
         if let Some(range) = cx.version_range {
             let mut versions = BTreeMap::new();
@@ -163,8 +156,6 @@ fn try_main() -> Result<()> {
 struct Progress {
     total: usize,
     count: usize,
-    partition_count: usize,
-    partition_index: usize,
 }
 
 #[derive(Clone)]
