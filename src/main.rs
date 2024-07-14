@@ -58,7 +58,14 @@ fn try_main() -> Result<()> {
         }
 
         let packages = determine_package_list(cx)?;
-        let mut progress = Progress::default();
+        let mut progress = if std::env::var("PARTITION").is_ok() {
+            let mut p = Progress::default();
+            p.partition_count = 3;
+            p.partition_index = 2;
+            p
+        } else {
+            Progress::default()
+        };
         let mut keep_going = KeepGoing::default();
         if let Some(range) = cx.version_range {
             let mut versions = BTreeMap::new();
@@ -156,6 +163,8 @@ fn try_main() -> Result<()> {
 struct Progress {
     total: usize,
     count: usize,
+    partition_count: usize,
+    partition_index: usize,
 }
 
 #[derive(Clone)]
@@ -672,7 +681,19 @@ fn exec_cargo_inner(
     if progress.count != 0 && !cx.print_command_list && cx.log_group == LogGroup::None {
         eprintln!();
     }
+    if progress.count % progress.partition_count != progress.partition_index {
+        let mut msg = String::new();
+        if term::verbose() {
+            write!(msg, "skipping {line}").unwrap();
+        } else {
+            write!(msg, "skipping {line} on {}", cx.packages(id).name).unwrap();
+        }
+        write!(msg, " ({}/{}; {} {})", progress.count, progress.total, progress.partition_index, progress.partition_count).unwrap();
+        let _guard = cx.log_group.print(&msg);
+        return Ok(());
+    }
     progress.count += 1;
+
 
     if cx.clean_per_run {
         cargo_clean(cx, Some(id))?;
@@ -690,7 +711,7 @@ fn exec_cargo_inner(
     } else {
         write!(msg, "running {line} on {}", cx.packages(id).name).unwrap();
     }
-    write!(msg, " ({}/{})", progress.count, progress.total).unwrap();
+    write!(msg, " ({}/{}; {} {})", progress.count, progress.total, progress.partition_index, progress.partition_count).unwrap();
     let _guard = cx.log_group.print(&msg);
 
     line.run()

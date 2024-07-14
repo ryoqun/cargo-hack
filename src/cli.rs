@@ -15,6 +15,27 @@ use lexopt::{
 
 use crate::{term, version::VersionRange, Feature, LogGroup, Rustup};
 
+pub(crate) struct Partition {
+    count: usize,
+    index: usize,
+}
+
+use anyhow::Error;
+use std::str::FromStr;
+
+impl FromStr for Partition {
+    type Err = Error;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match &s.split("/").map(str::parse::<usize>).collect::<Vec<_>>()[..] {
+            [Ok(a), Ok(b)] => Ok(Self {count: 0, index: 0}),
+            other => bail!(
+                "argument for --log-group must be none or github-actions, but found"
+            ),
+        }
+    }
+}
+
 pub(crate) struct Args {
     pub(crate) leading_args: Vec<String>,
     pub(crate) trailing_args: Vec<String>,
@@ -99,6 +120,8 @@ pub(crate) struct Args {
     // propagated to cargo (as a part of leading_args)
     /// --no-default-features
     pub(crate) no_default_features: bool,
+
+    pub(crate) partition: Option<Partition>,
 }
 
 impl Args {
@@ -292,6 +315,12 @@ impl Args {
                     } else {
                         optional_deps.extend(val.split(' ').map(str::to_owned));
                     }
+                }
+                Long("partition") => {
+                    let p: Partition = parser.value()?.parse()?;
+
+                    //let depth = depth.as_deref().map(str::parse::<usize>).transpose()?;
+
                 }
 
                 Long("workspace" | "all") => parse_flag!(workspace),
