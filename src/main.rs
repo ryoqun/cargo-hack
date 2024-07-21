@@ -640,16 +640,40 @@ impl FromStr for LogGroup {
 }
 
 pub(crate) struct Partition {
+    mode: PartitionMode,
     index: usize,
     count: usize,
+}
+
+impl Partition {
+    fn should_run(&self, progress: &Progress) -> bool {
+        let current_index = match self.mode {
+            PartitionMode::Interleave => progress.count % self.count,
+            PartitionMode::Chunk => progress.count / progress.total.div_ceil(self.count),
+        };
+        current_index == self.index - 1
+    }
+}
+
+pub(crate) enum PartitionMode {
+    Chunk,
+    Interleave,
 }
 
 impl FromStr for Partition {
     type Err = Error;
 
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        match s.split('/').map(str::parse::<usize>).collect::<Vec<_>>()[..] {
-            [Ok(index), Ok(count)] if 0 < index && index <= count => Ok(Self { index, count }),
+        let t = &s.split(':').collect::<Vec<_>>()[..];
+        let (mode, rest) = match t {
+            ["interleave", rest @ ..] => (PartitionMode::Interleave, rest),
+            ["chunk", rest @ ..] => (PartitionMode::Chunk, rest),
+            _ => bail!("mode isn't \"interleave\" nor \"chunk\": {s}"),
+        };
+        match rest.join("").split('/').map(str::parse::<usize>).collect::<Vec<_>>()[..] {
+            [Ok(index), Ok(count)] if 0 < index && index <= count => {
+                Ok(Self { mode, index, count })
+            }
             _ => bail!("bad or out-of-range partition: {s}"),
         }
     }
@@ -692,7 +716,7 @@ fn exec_cargo_inner(
     let new_count = progress.count + 1;
     let mut skip = false;
     if let Some(partition) = &cx.partition {
-        if progress.count % partition.count != partition.index - 1 {
+        if !partition.should_run(&progress) {
             let mut msg = String::new();
             if term::verbose() {
                 write!(msg, "skipping {line}").unwrap();

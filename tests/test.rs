@@ -1898,3 +1898,165 @@ fn print_command_list() {
         )
         .stdout_not_contains("`");
 }
+
+#[test]
+fn partition_interleave() {
+    cargo_hack(["check", "--each-feature", "--partition", "interleave:1/1"])
+        .assert_success("real")
+        .stderr_contains(
+            "
+            running `cargo check --all-features` on real (1/6)
+            running `cargo check --no-default-features` on real (2/6)
+            running `cargo check --no-default-features --features a` on real (3/6)
+            running `cargo check --no-default-features --features b` on real (4/6)
+            running `cargo check --no-default-features --features c` on real (5/6)
+            running `cargo check --no-default-features --features default` on real (6/6)
+            ",
+        );
+
+    cargo_hack(["check", "--each-feature", "--partition", "interleave:1/3"])
+        .assert_success("real")
+        .stderr_contains(
+            "
+            running `cargo check --all-features` on real (1/6)
+            skipping `cargo check --no-default-features` on real (2/6)
+            skipping `cargo check --no-default-features --features a` on real (3/6)
+            running `cargo check --no-default-features --features b` on real (4/6)
+            skipping `cargo check --no-default-features --features c` on real (5/6)
+            skipping `cargo check --no-default-features --features default` on real (6/6)
+            ",
+        );
+
+    cargo_hack(["check", "--each-feature", "--partition", "interleave:2/3"])
+        .assert_success("real")
+        .stderr_contains(
+            "
+            skipping `cargo check --all-features` on real (1/6)
+            running `cargo check --no-default-features` on real (2/6)
+            skipping `cargo check --no-default-features --features a` on real (3/6)
+            skipping `cargo check --no-default-features --features b` on real (4/6)
+            running `cargo check --no-default-features --features c` on real (5/6)
+            skipping `cargo check --no-default-features --features default` on real (6/6)
+            ",
+        );
+
+    cargo_hack(["check", "--each-feature", "--partition", "interleave:3/3"])
+        .assert_success("real")
+        .stderr_contains(
+            "
+            skipping `cargo check --all-features` on real (1/6)
+            skipping `cargo check --no-default-features` on real (2/6)
+            running `cargo check --no-default-features --features a` on real (3/6)
+            skipping `cargo check --no-default-features --features b` on real (4/6)
+            skipping `cargo check --no-default-features --features c` on real (5/6)
+            running `cargo check --no-default-features --features default` on real (6/6)
+            ",
+        );
+}
+
+#[test]
+fn partition_chunk() {
+    cargo_hack(["check", "--feature-powerset", "--partition", "chunk:1/3"])
+        .assert_success("real")
+        .stderr_contains(
+            "
+            running `cargo check --all-features` on real (1/17)
+            running `cargo check --no-default-features` on real (2/17)
+            running `cargo check --no-default-features --features a` on real (3/17)
+            running `cargo check --no-default-features --features b` on real (4/17)
+            running `cargo check --no-default-features --features a,b` on real (5/17)
+            running `cargo check --no-default-features --features c` on real (6/17)
+            skipping `cargo check --no-default-features --features a,c` on real (7/17)
+            skipping `cargo check --no-default-features --features b,c` on real (8/17)
+            skipping `cargo check --no-default-features --features a,b,c` on real (9/17)
+            skipping `cargo check --no-default-features --features default` on real (10/17)
+            skipping `cargo check --no-default-features --features a,default` on real (11/17)
+            skipping `cargo check --no-default-features --features b,default` on real (12/17)
+            skipping `cargo check --no-default-features --features a,b,default` on real (13/17)
+            skipping `cargo check --no-default-features --features c,default` on real (14/17)
+            skipping `cargo check --no-default-features --features a,c,default` on real (15/17)
+            skipping `cargo check --no-default-features --features b,c,default` on real (16/17)
+            skipping `cargo check --no-default-features --features a,b,c,default` on real (17/17)
+            ",
+        );
+
+    cargo_hack(["check", "--feature-powerset", "--partition", "chunk:2/3"])
+        .assert_success("real")
+        .stderr_contains(
+            "
+            skipping `cargo check --all-features` on real (1/17)
+            skipping `cargo check --no-default-features` on real (2/17)
+            skipping `cargo check --no-default-features --features a` on real (3/17)
+            skipping `cargo check --no-default-features --features b` on real (4/17)
+            skipping `cargo check --no-default-features --features a,b` on real (5/17)
+            skipping `cargo check --no-default-features --features c` on real (6/17)
+            running `cargo check --no-default-features --features a,c` on real (7/17)
+            running `cargo check --no-default-features --features b,c` on real (8/17)
+            running `cargo check --no-default-features --features a,b,c` on real (9/17)
+            running `cargo check --no-default-features --features default` on real (10/17)
+            running `cargo check --no-default-features --features a,default` on real (11/17)
+            running `cargo check --no-default-features --features b,default` on real (12/17)
+            skipping `cargo check --no-default-features --features a,b,default` on real (13/17)
+            skipping `cargo check --no-default-features --features c,default` on real (14/17)
+            skipping `cargo check --no-default-features --features a,c,default` on real (15/17)
+            skipping `cargo check --no-default-features --features b,c,default` on real (16/17)
+            skipping `cargo check --no-default-features --features a,b,c,default` on real (17/17)
+            ",
+        );
+
+    cargo_hack(["check", "--feature-powerset", "--partition", "chunk:3/3"])
+        .assert_success("real")
+        .stderr_contains(
+            "
+            skipping `cargo check --all-features` on real (1/17)
+            skipping `cargo check --no-default-features` on real (2/17)
+            skipping `cargo check --no-default-features --features a` on real (3/17)
+            skipping `cargo check --no-default-features --features b` on real (4/17)
+            skipping `cargo check --no-default-features --features a,b` on real (5/17)
+            skipping `cargo check --no-default-features --features c` on real (6/17)
+            skipping `cargo check --no-default-features --features a,c` on real (7/17)
+            skipping `cargo check --no-default-features --features b,c` on real (8/17)
+            skipping `cargo check --no-default-features --features a,b,c` on real (9/17)
+            skipping `cargo check --no-default-features --features default` on real (10/17)
+            skipping `cargo check --no-default-features --features a,default` on real (11/17)
+            skipping `cargo check --no-default-features --features b,default` on real (12/17)
+            running `cargo check --no-default-features --features a,b,default` on real (13/17)
+            running `cargo check --no-default-features --features c,default` on real (14/17)
+            running `cargo check --no-default-features --features a,c,default` on real (15/17)
+            running `cargo check --no-default-features --features b,c,default` on real (16/17)
+            running `cargo check --no-default-features --features a,b,c,default` on real (17/17)
+            ",
+        );
+}
+
+#[test]
+fn partition_bad() {
+    cargo_hack(["check", "--each-feature", "--partition", "foo:1/3"])
+        .assert_failure("real")
+        .stderr_contains("mode isn't \"interleave\" nor \"chunk\": foo:1/3");
+
+    cargo_hack(["check", "--each-feature", "--partition", "interleave:foo/bar"])
+        .assert_failure("real")
+        .stderr_contains("bad or out-of-range partition: interleave:foo/bar");
+
+    cargo_hack(["check", "--each-feature", "--partition", "interleave:0/3"])
+        .assert_failure("real")
+        .stderr_contains("bad or out-of-range partition: interleave:0/3");
+
+    cargo_hack(["check", "--each-feature", "--partition", "chunk:4/3"])
+        .assert_failure("real")
+        .stderr_contains("bad or out-of-range partition: chunk:4/3");
+
+    cargo_hack([
+        "check",
+        "--each-feature",
+        "--partition",
+        "interleave:1/3",
+        "--partition",
+        "chunk:2/3",
+    ])
+    .assert_failure("real")
+    .stderr_contains(
+        "The argument '--partition' was provided more than once, but cannot be used multiple times",
+    );
+}

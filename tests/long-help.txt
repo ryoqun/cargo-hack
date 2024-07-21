@@ -186,8 +186,8 @@ OPTIONS:
         --keep-going
             Keep going on failure.
 
-        --partition <M/N>
-            Partition runs and execute only its subset according to M/N.
+        --partition <MODE:M/N>
+            Partition runs and execute only its subset according to "interleave:M/N" or "chunk:M/N".
 
         --log-group <KIND>
             Log grouping: none, github-actions.

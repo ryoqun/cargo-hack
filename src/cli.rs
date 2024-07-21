@@ -820,7 +820,7 @@ const HELP: &[HelpText<'_>] = &[
         "This flag can only be used together with --version-range flag.",
     ]),
     ("", "--keep-going", "", "Keep going on failure", &[]),
-    ("", "--partition", "<M/N>", "Partition runs and execute only its subset according to M/N", &[]),
+    ("", "--partition", "<MODE:M/N>", "Partition runs and execute only its subset according to \"interleave:M/N\" or \"chunk:M/N\"", &[]),
     ("", "--log-group", "<KIND>", "Log grouping: none, github-actions", &[
         "If this option is not used, the environment will be automatically detected."
     ]),
